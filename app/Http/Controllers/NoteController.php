@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Note;
+
 use App\Http\Requests\StoreNoteRequest;
 use App\Http\Requests\UpdateNoteRequest;
+use Illuminate\Http\Response;
 
 class NoteController extends Controller
 {
@@ -13,15 +15,9 @@ class NoteController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $notes = Note::all();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return response()->json($notes, Response::HTTP_OK);
     }
 
     /**
@@ -29,7 +25,9 @@ class NoteController extends Controller
      */
     public function store(StoreNoteRequest $request)
     {
-        //
+        $note = Note::create($request->all());
+
+        return response()->json($note, Response::HTTP_CREATED);
     }
 
     /**
@@ -37,15 +35,7 @@ class NoteController extends Controller
      */
     public function show(Note $note)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Note $note)
-    {
-        //
+        return response()->json($note, Response::HTTP_OK);
     }
 
     /**
@@ -53,7 +43,9 @@ class NoteController extends Controller
      */
     public function update(UpdateNoteRequest $request, Note $note)
     {
-        //
+        $note->update($request->all());
+
+        return response()->json($note, Response::HTTP_OK);
     }
 
     /**
@@ -61,6 +53,8 @@ class NoteController extends Controller
      */
     public function destroy(Note $note)
     {
-        //
+        $note->delete();
+
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }
