@@ -2,49 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+
+use App\Http\Requests\RegisterUserRequest;
+use App\Http\Requests\LoginUserRequest;
 
 use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
-    /**
-     * Register a new user
-     */
-    public function register(Request $request)
+    public function register(RegisterUserRequest $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-        ]);
+        $validatedData = $request->validated();
 
+        // Check if a user with the specified email exists
         $user = User::create([
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['password']),
         ]);
 
+        // create an auth_token for the user as specified in Sanctum's docs
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        // return the token and the user
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
         ]);
     }
 
-    /**
-     * Login a user
-     */
-    public function login(Request $request)
+    public function login(LoginUserRequest $request)
     {
-        $validatedData = $request->validate([
-            'email' => 'required|string|email|max:255',
-            'password' => 'required|string|min:8',
-        ]);
-
+        $validatedData = $request->validated();
         // Check if a user with the specified email exists
         $user = User::where('email', $validatedData['email'])->first();
 
@@ -56,8 +47,10 @@ class UserController extends Controller
             ]);
         }
 
+        // create an auth_token for the user as specified in Sanctum's docs
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        // return the token and the user
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
